@@ -93,4 +93,4 @@ modules:
       raidTotalSize:
         type: gauge
     auth:
-      community: yourcommunitystringhere
+      community: synology

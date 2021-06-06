@@ -1,7 +1,6 @@
 version: "3.8"
 services:
   prometheus:
-    privileged: true
     container_name: prometheus
     image: quay.io/prometheus/prometheus:v2.26.0
     volumes:
@@ -29,7 +28,6 @@ services:
       - "^/(rootfs/)?(dev|etc|host|proc|run|sys|volume1)($$|/)"
 
   grafana:
-    privileged: true
     container_name: grafana
     image: grafana/grafana
     ports:
@@ -38,7 +36,6 @@ services:
       - prometheus
 
   alertmanager:
-    privileged: true
     container_name: alertmanager
     image: prom/alertmanager:v0.21.0
     ports:
@@ -49,7 +46,9 @@ services:
 
   snmp-exporter:
     image: prom/snmp-exporter
-    container_name: snmp-exporter
+    container_name: snmp_exporter
+    volumes:
+      - ./snmp_exporter/:/etc/snmp_exporter/
     ports:
       - 9116:9116
     volumes:
