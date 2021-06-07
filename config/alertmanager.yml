@@ -1,0 +1,38 @@
+global:
+  resolve_timeout: 5m
+  slack_api_url: 'https://hooks.slack.com/services/XXX'
+
+templates:
+- '/etc/alertmanager/template/*.tmpl'
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'webhook'
+  routes:
+  - receiver: 'slack-notification'
+    group_by: ['service']
+    match_re:
+      alertname: 'node.*down'
+
+inhibit_rules:
+- source_match:
+    severity: 'critical'
+  target_match:
+    severity: 'warning'
+  equal: ['alertname', 'dev', 'instance']
+- source_match_re:
+    alertname: 'node.*down'
+  target_match:
+    alertname: 'webservicedown'
+
+receivers:
+- name: 'webhook'
+  webhook_configs:
+  - url: 'http://127.0.0.1:5000/webhook'
+- name: 'slack-notification'
+  slack_configs:
+  - channel: '#notification'
+    send_resolved: false

@@ -1,0 +1,96 @@
+# Synology
+#
+# Synology MIBs can be found here:
+#   http://www.synology.com/support/snmp_mib.php
+#   http://dedl.synology.com/download/Document/MIBGuide/Synology_MIB_File.zip
+#
+# Tested on RS2414rp+ NAS
+#
+#Failing override
+#serialNumber
+#version
+#diskID
+
+modules:
+  synology:
+    walk:
+      - interfaces
+      - sysUpTime
+      - ifXTable
+      - laNames
+      - laLoadInt
+      - ssCpuUser
+      - ssCpuSystem
+      - ssCpuIdle
+      - memory
+      - hrSystem
+      - hrStorage
+      - 1.3.6.1.4.1.6574.1       # synoSystem
+      - 1.3.6.1.4.1.6574.2       # synoDisk
+      - 1.3.6.1.4.1.6574.3       # synoRaid
+      - 1.3.6.1.4.1.6574.4       # synoUPS
+      - 1.3.6.1.4.1.6574.5       # synologyDiskSMART
+      - 1.3.6.1.4.1.6574.6       # synologyService
+      - 1.3.6.1.4.1.6574.101     # storageIO
+      - 1.3.6.1.4.1.6574.102     # spaceIO
+      - 1.3.6.1.4.1.6574.103     # flashCache
+      - 1.3.6.1.4.1.6574.104     # synologyiSCSILUN
+    lookups:
+      - source_indexes: [spaceIOIndex]
+        lookup: spaceIODevice
+        drop_source_indexes: true
+      - source_indexes: [storageIOIndex]
+        lookup: storageIODevice
+        drop_source_indexes: true
+      - source_indexes: [serviceInfoIndex]
+        lookup: serviceName
+        drop_source_indexes: true
+      - source_indexes: [ifIndex]
+        # Use OID to avoid conflict with Netscaler NS-ROOT-MIB.
+        lookup: 1.3.6.1.2.1.31.1.1.1.1 # ifName
+        drop_source_indexes: true
+      - source_indexes: [diskIndex]
+        lookup: diskID
+        drop_source_indexes: true
+      - source_indexes: [raidIndex]
+        lookup: raidName
+      - source_indexes: [flashCacheIndex]
+        lookup: flashCacheSSDDev
+        drop_source_indexes: true
+      - source_indexes: [laIndex]
+        lookup: laNames
+        drop_source_indexes: true
+      - source_indexes: [hrStorageIndex]
+        lookup: hrStorageDescr
+        drop_source_indexes: true
+    overrides:
+      diskModel:
+        type: DisplayString
+      serviceName:
+        type: DisplayString
+      version:
+        type: DisplayString
+      diskSMARTAttrName:
+        type: DisplayString
+      diskSMARTInfoDevName:
+        type: DisplayString
+      diskSMARTAttrStatus:
+        type: DisplayString
+      diskType:
+        type: DisplayString
+      raidName:
+        type: DisplayString
+      flashCacheSSDDev:
+        type: DisplayString
+      modelName:
+        type: DisplayString
+      serialNumber:
+        type: DisplayString
+      ifType:
+        type: EnumAsInfo
+      raidFreeSize:
+        type: gauge
+      raidTotalSize:
+        type: gauge
+    auth:
+      community: yourcommunitystringhere

@@ -1,0 +1,21 @@
+global:
+  scrape_interval:     1m
+  evaluation_interval: 1m
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets: ['alertmanager:9093']
+
+rule_files:
+  - "/etc/prometheus/rules/*"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          group: 'prometheus'
+  - job_name: node
+    static_configs:
+    - targets: ['node-exporter:9100']
