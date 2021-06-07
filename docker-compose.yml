@@ -2,7 +2,6 @@ version: "3.8"
 services:
   prometheus:
     privileged: true
-    network_mode: "host"
     container_name: prometheus
     image: quay.io/prometheus/prometheus:v2.26.0
     volumes:
@@ -14,7 +13,6 @@ services:
 
   node-exporter:
     privileged: true
-    network_mode: "host"
     image: prom/node-exporter
     container_name: node-exporter
     restart: always
@@ -32,7 +30,6 @@ services:
 
   grafana:
     privileged: true
-    network_mode: "host"
     container_name: grafana
     image: grafana/grafana
     ports:
@@ -42,7 +39,6 @@ services:
 
   alertmanager:
     privileged: true
-    network_mode: "host"
     container_name: alertmanager
     image: prom/alertmanager:v0.21.0
     ports:
