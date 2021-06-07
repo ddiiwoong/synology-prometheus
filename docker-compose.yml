@@ -49,9 +49,7 @@ services:
 
   snmp-exporter:
     image: prom/snmp-exporter
-    container_name: snmp_exporter
-    volumes:
-      - ./snmp_exporter/:/etc/snmp_exporter/
+    container_name: snmp-exporter
     ports:
       - 9116:9116
     volumes:
