@@ -50,3 +50,14 @@ services:
     volumes:
       - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml
     restart: always
+
+  snmp-exporter:
+    image: prom/snmp-exporter
+    volumes:
+      - ./snmp_exporter/:/etc/snmp_exporter/
+    ports:
+      - 9116:9116
+    volumes:
+      - ./snmp-synology/snmp-synology.yml:/etc/snmp_exporter/snmp.yml
+    command:
+      - "--config.file=/etc/snmp_exporter/snmp.yml"
