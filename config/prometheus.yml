@@ -21,4 +21,4 @@ scrape_configs:
     - targets: ['node-exporter:9100']
   - job_name: snmp-exporter
     static_configs:
-    - targets: ['snmp-exporter:9100']
+    - targets: ['snmp-exporter:9116']
