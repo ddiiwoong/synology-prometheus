@@ -29,10 +29,37 @@ SNMP 데이터 구조를 여기서 자세히 설명하지는 않겠지만 SNMP i
 
 해당 링크에서 확인할 수 있듯이 generator에서 벤더별 MIB 파일과 generator.yml를 참조해서 빌드, 실행하고 결과값으로 snmp.yml이 생성되게 된다. 
 
-다행이도 시놀로지에서는 다음과 같이 SNMP MIB 정보가 제공이 잘 되고 있다.
+다행이도 시놀로지에서는 다음과 같이 SNMP MIB 정보가 제공된다.  
+
 - [http://www.synology.com/support/snmp_mib.php](http://www.synology.com/support/snmp_mib.php)  
 
-아래 MIB 파일을 다운로드 받는다.
+아래 MIB 파일을 다운로드 받는다.  
 - [https://global.download.synology.com/download/Document/Software/DeveloperGuide/Firmware/DSM/All/enu/Synology_MIB_File.zip](https://global.download.synology.com/download/Document/Software/DeveloperGuide/Firmware/DSM/All/enu/Synology_MIB_File.zip)  
 
-그리고 snmp exporter github를 복제하시고 
+그리고 [snmp_exporter github](git@github.com:prometheus/snmp_exporter.git)를 clone 하고 generator 디렉토리의 Dockerfile을 참조한다.  
+
+generator Dockerfile
+```
+FROM golang:latest
+
+RUN apt-get update && \
+    apt-get install -y libsnmp-dev p7zip-full unzip && \
+    go install github.com/prometheus/snmp_exporter/generator@latest
+
+WORKDIR "/opt"
+
+ENTRYPOINT ["/go/bin/generator"]
+
+ENV MIBDIRS mibs
+
+CMD ["generate"]
+```
+
+해당 Dockerfile로 docker build를 진행한 후에 빌드한 generator docker를 아까 내려받은 Synology mib 파일을 mibs 디렉토리에 넣고 
+
+```
+docker build -t snmp-generator .
+docker run -ti \
+  -v "${PWD}:/opt/" \
+  snmp-generator generate
+```
