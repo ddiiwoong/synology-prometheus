@@ -11,13 +11,21 @@
 
 기본적으로 시놀로지 UI에서도 관련된 데이터들을 모두 확인할수 있고 디스크 오류나 전원 등 특별한 이벤트가 발생했을 경우는 별도로 이메일이나 커스텀 스크립트를 통해 알림을 받을 수 있지만 메트릭을 기반으로 하는 특정 상황에서 알림을 받거나 내가 원하는 모니터링 대시보드를 꾸미기 위한 용으로 시놀로지는 SNMP기반의 모니터링을 제공한다. 다른 NMP또는 모니터링 도구등을 사용하기 보다는 실제 SNMP exporter를 구성하고 프로메테우스와 연동을 통해 그라파나 대시보드를 통해 모니터링을 해보는데 목적이 있다.
 
-## Synology SNMP 설정
+## Synology 설정
+
+### 사전 요구사항
+- [시놀로지 Docker](https://www.synology.com/en-global/dsm/packages/Docker)
+- SSH 허용
+- Admin 권한
+- SNMP 설정
+
+위 3개가지 설명은 기본적으로 되어있다 가정하고 진행한다.  
 
 시놀로지는 기본적으로 SNMP 설정이 비활성화 상태이기 때문에 변경이 필요하다. 아래 그림과 같이 시놀로지의 제어판 - 터미널 및 SNMP - SNMP탭 으로 이동해서 SNMP 서비스를 활성화를 체크하고 이후 snmp exporter 설정에서 사용될 community값을 원하는 값으로 변경한 후 저장한다.  
 
 ![snmp](./assets/snmp.png)
 
-그럼 이제 시놀로지는 외부의 SNMP Port인 UDP 161 로 snmpd을 실행하게 된다. 
+그럼 이제 시놀로지는 외부 통신을 위한 SNMP Port인 UDP 161 로 snmpd을 실행하게 된다. 
 
 ```sh
 root@DSM2:~# netstat -unlp | grep 161
@@ -29,27 +37,18 @@ udp6       0      0 :::161                  :::*                                
 
 [https://github.com/prometheus/snmp_exporter](https://github.com/prometheus/snmp_exporter)
 
-SNMP Exporter는 프로메테우스가 수집할 수 있는 형식으로 SNMP 메트릭 데이터를 Expose 할때 사용하는 방법으로 전통적인 모니터링 도구와 마찬가지로 MIB를 사용하게 된다. 
+SNMP Exporter는 프로메테우스가 수집할 수 있는 형식으로 SNMP 메트릭 데이터를 Expose 할때 사용하는 방법으로 전통적인 모니터링 도구와 마찬가지로 MIB를 사용하게 된다. 레포지토리 컨셉에도 설명이 적혀있듯이 SNMP 데이터는 계층형 데이터 구조를 가지고 있고 프로메테우스는 다차원 매트릭스를 사용하고 있기 때문에 두 시스템은 잘 맞는다고 볼 수 있다.
 
-레포지토리 컨셉에도 설명이 적혀있듯이 SNMP 데이터는 계층형 데이터 구조를 가지고 있고 프로메테우스는 다차원 매트릭스를 사용하고 있기 때문에 두 시스템은 잘 맞는다고 볼 수 있다.
+SNMP 데이터 구조를 여기서 자세히 설명하지는 않겠지만  SNMP index와 label을 매핑하는 방식으로 데이터를 처리한다. 다른 익스포터와 동일하게 daemon 형태로 실행이 되고 `http://localhost:9116/snmp?module=if_mib&target=1.2.3.4` 와 같이 module과 target을 설정하는 방식으로 데이터 수집을 할 수 있다.
 
-SNMP 데이터 구조를 여기서 자세히 설명하지는 않겠지만 SNMP index와 label을 매핑하는 방식으로 데이터를 처리한다. 
-
-다른 익스포터와 동일하게 daemon 형태로 실행이 되고 `http://localhost:9116/snmp?module=if_mib&target=1.2.3.4` 와 같이 module과 target을 설정하는 방식으로 데이터 수집을 할 수 있다.
-
-기본 config 파일을 `snmp.yml`을 참조하게 되는데 수동으로 작성하는 것이 아니라 generator를 통해 생성하게 된다. 
-
+기본 config 파일을 `snmp.yml`을 참조하게 되는데 수동으로 작성하는 것이 아니라 generator를 통해 생성하게 된다.  
 [https://github.com/prometheus/snmp_exporter/tree/main/generator](https://github.com/prometheus/snmp_exporter/tree/main/generator)
 
-해당 링크에서 확인할 수 있듯이 generator에서 벤더별 MIB 파일과 generator.yml를 참조해서 빌드, 실행하고 결과값으로 snmp.yml이 생성되게 된다. 
-
-따로 만들어도 되지만 Synology에만 해당 파일을 바로 사용할 수 있도록 미리 만들어 두신 분이 계셔서 그분의 [그라파나 대시보드](https://grafana.com/orgs/tumak)에서 퍼왔다. 그리고 이후 대시보드도 사용할 예정이다. 
+해당 링크에서 확인할 수 있듯이 generator에서 벤더별 MIB 파일과 generator.yml를 참조해서 빌드, 실행하고 결과값으로 snmp.yml이 생성되게 된다. 따로 만들어도 되지만 Synology에만 해당 파일을 바로 사용할 수 있도록 미리 만들어 두신 분이 계셔서 [그분](https://grafana.com/orgs/tumak)의 그라파나 대시보드를 참조하였다. 그리고 이후 시놀로지 대시보드로도 사용할 예정이다.  
 
 [https://grafana.com/grafana/dashboards/14284](https://grafana.com/grafana/dashboards/14284)
 
-만들어진 [snmp.yml]()에서 변경해야 할 부분은 현재 시놀로지에서 설정된 SNMP community 설정이다.  
-
-snmp.yml 맨 아래 community 값을 시놀로지에 설정한 값과 일치하게 변경한다.  
+만들어진 [snmp.yml]()에서 변경해야 할 부분은 현재 시놀로지에서 설정된 SNMP community 설정이다. snmp.yml 맨 아래 community 값을 시놀로지에 설정한 값과 일치하게 변경한다.  
 
 ```yaml
   auth:
@@ -221,4 +220,3 @@ Docker Compose로 실행할 때 아래와 같이 `prometheus` 이름으로 실�
 ## 정리
 
 간단(?)하게 시놀로지 나스를 모니터링하는 방법에 대해서 정리해봤다. 누군가에게는 재미로 누군가에게는 도움이 되길 바라며, 포스팅과 관련된 모든것은 개인 취미로 작성된 내용으로 회사나 나스와 관련된 제품과 관계가 없음을 다시한번 알린다.  
-
