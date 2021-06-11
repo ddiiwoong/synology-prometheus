@@ -11,6 +11,20 @@
 
 기본적으로 시놀로지 UI에서도 관련된 데이터들을 모두 확인할수 있고 디스크 오류나 전원 등 특별한 이벤트가 발생했을 경우는 별도로 이메일이나 커스텀 스크립트를 통해 알림을 받을 수 있지만 메트릭을 기반으로 하는 특정 상황에서 알림을 받거나 내가 원하는 모니터링 대시보드를 꾸미기 위한 용으로 시놀로지는 SNMP기반의 모니터링을 제공한다. 다른 NMP또는 모니터링 도구등을 사용하기 보다는 실제 SNMP exporter를 구성하고 프로메테우스와 연동을 통해 그라파나 대시보드를 통해 모니터링을 해보는데 목적이 있다.
 
+## Synology SNMP 설정
+
+시놀로지는 기본적으로 SNMP 설정이 비활성화 상태이기 때문에 변경이 필요하다. 아래 그림과 같이 시놀로지의 제어판 - 터미널 및 SNMP - SNMP탭 으로 이동해서 SNMP 서비스를 활성화를 체크하고 이후 snmp exporter 설정에서 사용될 community값을 원하는 값으로 변경한 후 저장한다.  
+
+![snmp](./assets/snmp.png)
+
+그럼 이제 시놀로지는 외부의 SNMP Port인 UDP 161 로 snmpd을 실행하게 된다. 
+
+```sh
+root@DSM2:~# netstat -unlp | grep 161
+udp        0      0 0.0.0.0:161             0.0.0.0:*                           9437/snmpd
+udp6       0      0 :::161                  :::*                                9437/snmpd
+```
+
 ## SNMP Exporter
 
 [https://github.com/prometheus/snmp_exporter](https://github.com/prometheus/snmp_exporter)
@@ -29,37 +43,158 @@ SNMP 데이터 구조를 여기서 자세히 설명하지는 않겠지만 SNMP i
 
 해당 링크에서 확인할 수 있듯이 generator에서 벤더별 MIB 파일과 generator.yml를 참조해서 빌드, 실행하고 결과값으로 snmp.yml이 생성되게 된다. 
 
-다행이도 시놀로지에서는 다음과 같이 SNMP MIB 정보가 제공된다.  
+따로 만들어도 되지만 Synology에만 해당 파일을 바로 사용할 수 있도록 미리 만들어 두신 분이 계셔서 그분의 [그라파나 대시보드](https://grafana.com/orgs/tumak)에서 퍼왔다. 그리고 이후 대시보드도 사용할 예정이다. 
 
-- [http://www.synology.com/support/snmp_mib.php](http://www.synology.com/support/snmp_mib.php)  
+[https://grafana.com/grafana/dashboards/14284](https://grafana.com/grafana/dashboards/14284)
 
-아래 MIB 파일을 다운로드 받는다.  
-- [https://global.download.synology.com/download/Document/Software/DeveloperGuide/Firmware/DSM/All/enu/Synology_MIB_File.zip](https://global.download.synology.com/download/Document/Software/DeveloperGuide/Firmware/DSM/All/enu/Synology_MIB_File.zip)  
+만들어진 [snmp.yml]()에서 변경해야 할 부분은 현재 시놀로지에서 설정된 SNMP community 설정이다.  
 
-그리고 [snmp_exporter github](git@github.com:prometheus/snmp_exporter.git)를 clone 하고 generator 디렉토리의 Dockerfile을 참조한다.  
+snmp.yml 맨 아래 community 값을 시놀로지에 설정한 값과 일치하게 변경한다.  
 
-generator Dockerfile
-```
-FROM golang:latest
-
-RUN apt-get update && \
-    apt-get install -y libsnmp-dev p7zip-full unzip && \
-    go install github.com/prometheus/snmp_exporter/generator@latest
-
-WORKDIR "/opt"
-
-ENTRYPOINT ["/go/bin/generator"]
-
-ENV MIBDIRS mibs
-
-CMD ["generate"]
+```yaml
+  auth:
+    community: synology
 ```
 
-해당 Dockerfile로 docker build를 진행한 후에 빌드한 generator docker를 아까 내려받은 Synology mib 파일을 mibs 디렉토리에 넣고 
+## Prometheus, Alertmanager, Exporter, Grafana 구성
+
+총 5개의 구성으로 모니터링 스택을 구성하려고 한다. 
+
+- Prometheus : 데이터 수집 및 저장을 담당하는 시계열 데이터베이스
+- Alertmanager : Prometheus에서 발생된 알림을 수신하여 메시지를 전달
+- Node Exporter : Linux Node의 모니터링 데이터를 Expose
+- SNMP Exporter : SNMP 기반 디바이스의 모니터링 데이터를 Expose
+- Grafana : 시각화 도구
+
+![arch](./assets/arch.png)  
+
+간단한 아키텍처 구성도로 시놀로지 자체 또는 OS기반에서 발생하는 모니터링 데이터를 수집하는 각각의 Exporter를 구성하고 해당 데이터를 수집하는 Prometheus 서버와 관련 데이터를 시각화하는 Grafana까지 한번에 구성하기 위해 Docker-compose를 사용할 예정이다.  
+
+Docker Compose 파일을 맨 아래 snmp exporter 부터 하나씩 쪼개서 살펴보자.  
+
+SNMP Exporter는 위에서 만든 snmp.yml 파일을 마운트해서 실행되도록 한다. 그러면 SNMP exporter가 실행되면서 snmp파일을 참조해서 실행이 되고 prometheus.yaml에서 정의한 target과 SNMP 프로토콜을 통해 관련된 메트릭 값을 수집해서 Expose하게 될 것이다.  
+
+```yaml
+  snmp-exporter:
+    image: prom/snmp-exporter
+    container_name: snmp_exporter
+    volumes:
+      - ./snmp_exporter/:/etc/snmp_exporter/
+    ports:
+      - 9116:9116
+    volumes:
+      - ./snmp-synology/snmp.yml:/etc/snmp_exporter/snmp.yml
+    command:
+      - "--config.file=/etc/snmp_exporter/snmp.yml"
+```
+
+다음은 Node Exporter를 실행하는 부분으로 시스템에 관련된 권한이 필요하므로 `/proc, /sys, /` 등 파일시스템의 read only 권한과 `privileged: true` 설정을 통해 실행되게 될 것이다.
+
+```yaml
+  node-exporter:
+    privileged: true
+    image: prom/node-exporter
+    container_name: node-exporter
+    restart: always
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.ignored-mount-points"
+      - "^/(rootfs/)?(dev|etc|host|proc|run|sys|volume1)($$|/)"
+```
+
+다음은 시각화와 알림을 담당할 Grafana와 Alertmanager 부분으로 Alertmanager의 경우 기본적인 config를 마운트해서 실행을 할 예정이다.
+
+```yaml
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+  alertmanager:
+    container_name: alertmanager
+    image: prom/alertmanager:v0.21.0
+    ports:
+      - 9093:9093
+    volumes:
+      - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    restart: always
+```
+
+마지막으로, Prometheus는 알림룰을 생성하기 위해서 별도로 rules 디렉토리와 미리 생성해둔 config를 mount 시킨다.  
+
+```yaml
+version: "3.8"
+services:
+  prometheus:
+    container_name: prometheus
+    image: quay.io/prometheus/prometheus:v2.26.0
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./rules:/etc/prometheus/rules
+    command: "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus"
+    ports:
+      - 9090:9090
+```
+
+prometheus.yml config를 살펴보면 수집주기는 1분으로, 나머지 얼럿매니저와 수집할 대상인 exporter들의 target endpoint를 추가하여 실행할 예정이다. 여기서는 시놀로지 SNMP 서비스와 통신하기 위해 SNMP Exporter의 target을 실제 사용중인 시놀로지 IP를 등록하도록 한다.  
+
+```yaml
+global:
+  scrape_interval:     1m
+  evaluation_interval: 1m
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets: ['alertmanager:9093']
+
+rule_files:
+  - "/etc/prometheus/rules/*"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          group: 'prometheus'
+  - job_name: node
+    static_configs:
+    - targets: ['node-exporter:9100']
+  - job_name: 'snmp-exporter'
+    static_configs:
+    - targets: ['192.168.31.7']
+    metrics_path: /snmp
+    params:
+      module: [synology]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 192.168.31.7:9116  # The SNMP exporter's real hostname:port. 
+```
+
+## Stack 실행
+
+모든 설정이 완료되면 일단 기본적인 실행이 가능한 상태로 시놀로지 CLI를 실행한다. 기본적으로 시놀로지는 admin계정으로 로그인해서 sudo 권한을 통해 Docker Compose 실행을 해야 한다.  
 
 ```
-docker build -t snmp-generator .
-docker run -ti \
-  -v "${PWD}:/opt/" \
-  snmp-generator generate
+ssh admin@192.168.31.7
+sudo -i
 ```
+
+
+
+
+
