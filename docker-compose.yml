@@ -52,6 +52,6 @@ services:
     ports:
       - 9116:9116
     volumes:
-      - ./snmp-synology/snmp-synology.yml:/etc/snmp_exporter/snmp.yml
+      - ./snmp-synology/snmp.yml:/etc/snmp_exporter/snmp.yml
     command:
       - "--config.file=/etc/snmp_exporter/snmp.yml"

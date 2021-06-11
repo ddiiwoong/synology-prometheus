@@ -1,0 +1,10 @@
+groups:
+- name: sample-alerts
+  rules:
+  - alert: node down
+    expr: 0
+    labels:
+      severity: critical
+      service: linux
+    annotations:
+      summary: node down
