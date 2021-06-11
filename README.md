@@ -189,12 +189,36 @@ scrape_configs:
 
 모든 설정이 완료되면 일단 기본적인 실행이 가능한 상태로 시놀로지 CLI를 실행한다. 기본적으로 시놀로지는 admin계정으로 로그인해서 sudo 권한을 통해 Docker Compose 실행을 해야 한다.  
 
-```
+```sh
 ssh admin@192.168.31.7
 sudo -i
 ```
 
+[https://github.com/ddiiwoong/synology-prometheus.git](https://github.com/ddiiwoong/synology-prometheus.git)을 clone해서 /snmp-synology/snmp.yml 파일의 community 값을 본인의 synology 값으로 변경한 후 Docker Compose를 데몬형태로 실행한다.  
 
+```sh
+docker-compose up -d
+```
 
+본인의 `http://<시놀로지 IP>:9090/targets` 으로 접속해서 3개의 target이 정상인지 확인한다. 그리고 표현식 브라우저로 돌아와서 `node_cpu_seconds_total` 과 `diskModel`을 통해 두개의 exporter에서 데이터가 수집되고 있는지 확인할 수 있다. `diskModel`은 시놀로지에 장착된 하드디스크 모델 정보를 보여주는 메트릭이다.  
 
+![diskmodel](./assets/diskmodel.png)
+
+그라파나 대시보드는 `http://<시놀로지 IP>:3000` 로 접속해서 초기 계정인 `admin:admin`을 입력하면 다음과 같이 기본 화면을 볼수 있다. 여기서 좌측의 기어모양 메뉴(Configuration)의 `Data Sources`를 클릭하고 프로메테우스 데이터소스를 등록한다.  
+
+Docker Compose로 실행할 때 아래와 같이 `prometheus` 이름으로 실행했기 때문에 HTTP URL에 `prometheus:9090`을 입력하고 `Save & Test`로 데이터 소스를 저장한다.  
+
+![grafana](./assets/grafana.png)
+
+## 시놀로지 대시보드 구성
+
+마지막으로 [https://grafana.com/grafana/dashboards/14284](https://grafana.com/grafana/dashboards/14284)의 대시보드를 추가하는 과정을 진행한다.  
+
+좌측의 + 메뉴(Create)의 `Import`를 클릭하고 위 대시보드 ID `14284`를 입력하고 등록하면 아래와 같이 시놀로지의 모니터링 대시보드를 확인할 수 있다. 
+
+![synology](./assets/synology.png)
+
+## 정리
+
+간단(?)하게 시놀로지 나스를 모니터링하는 방법에 대해서 정리해봤다. 누군가에게는 재미로 누군가에게는 도움이 되길 바라며, 포스팅과 관련된 모든것은 개인 취미로 작성된 내용으로 회사나 나스와 관련된 제품과 관계가 없음을 다시한번 알린다.  
 
