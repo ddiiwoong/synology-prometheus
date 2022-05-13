@@ -36,12 +36,14 @@ scrape_configs:
     params:
       module: [synology]
     relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: <Synology IP>:9116  # The SNMP exporter's real hostname:port. 
+    - source_labels: [__address__]
+      target_label: __param_target
+    - source_labels: [__param_target]
+      target_label: instance
+    - source_labels: [__param_target]
+      regex: (.*)
+      replacement: ${1}:9116
+      target_label: __address__
 ```
 
 ## Install
