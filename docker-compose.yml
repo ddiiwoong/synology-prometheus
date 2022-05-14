@@ -31,7 +31,7 @@ services:
     privileged: true
     image: prom/node-exporter
     container_name: node-exporter
-    restart: always
+    restart: unless-stopped
     ports:
       - "9100:9100"
     volumes:
@@ -47,11 +47,11 @@ services:
   snmp-exporter:
     image: prom/snmp-exporter
     container_name: snmp_exporter
+    restart: unless-stopped
     volumes:
       - ./snmp_exporter/:/etc/snmp_exporter/
+      - ./snmp-synology/snmp.yml:/etc/snmp_exporter/snmp.yml
     ports:
       - 9116:9116
-    volumes:
-      - ./snmp-synology/snmp.yml:/etc/snmp_exporter/snmp.yml
     command:
       - "--config.file=/etc/snmp_exporter/snmp.yml"
