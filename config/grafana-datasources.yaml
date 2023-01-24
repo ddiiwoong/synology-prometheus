@@ -1,0 +1,14 @@
+apiVersion: 1
+
+datasources:
+
+# See https://grafana.com/docs/grafana/latest/datasources/prometheus/#provision-the-prometheus-data-source
+- name: Prometheus
+  type: prometheus
+  access: proxy
+  orgId: 1
+  url: http://prometheus:9090
+  basicAuth: false
+  isDefault: false
+  version: 1
+  editable: true

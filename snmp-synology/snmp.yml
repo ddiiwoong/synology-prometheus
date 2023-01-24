@@ -2,7 +2,6 @@
 synology:
   walk:
   - 1.3.6.1.2.1.2
-  - 1.3.6.1.2.1.25.1
   - 1.3.6.1.2.1.25.2
   - 1.3.6.1.2.1.31.1.1
   - 1.3.6.1.4.1.2021.10.1.2
@@ -11,7 +10,6 @@ synology:
   - 1.3.6.1.4.1.6574.1
   - 1.3.6.1.4.1.6574.101
   - 1.3.6.1.4.1.6574.102
-  - 1.3.6.1.4.1.6574.103
   - 1.3.6.1.4.1.6574.104
   - 1.3.6.1.4.1.6574.2
   - 1.3.6.1.4.1.6574.3
@@ -377,6 +375,8 @@ synology:
       299: ieee19061nanocom
       300: cpri
       301: omni
+      302: roe
+      303: p2pOverLan
   - name: ifMtu
     oid: 1.3.6.1.2.1.2.2.1.4
     type: gauge
@@ -693,38 +693,6 @@ synology:
       type: DisplayString
     - labels: []
       labelname: ifIndex
-  - name: hrSystemUptime
-    oid: 1.3.6.1.2.1.25.1.1
-    type: gauge
-    help: The amount of time since this host was last initialized - 1.3.6.1.2.1.25.1.1
-  - name: hrSystemDate
-    oid: 1.3.6.1.2.1.25.1.2
-    type: DateAndTime
-    help: The host's notion of the local date and time of day. - 1.3.6.1.2.1.25.1.2
-  - name: hrSystemInitialLoadDevice
-    oid: 1.3.6.1.2.1.25.1.3
-    type: gauge
-    help: The index of the hrDeviceEntry for the device from which this host is configured
-      to load its initial operating system configuration (i.e., which operating system
-      code and/or boot parameters) - 1.3.6.1.2.1.25.1.3
-  - name: hrSystemInitialLoadParameters
-    oid: 1.3.6.1.2.1.25.1.4
-    type: OctetString
-    help: This object contains the parameters (e.g - 1.3.6.1.2.1.25.1.4
-  - name: hrSystemNumUsers
-    oid: 1.3.6.1.2.1.25.1.5
-    type: gauge
-    help: The number of user sessions for which this host is storing state information
-      - 1.3.6.1.2.1.25.1.5
-  - name: hrSystemProcesses
-    oid: 1.3.6.1.2.1.25.1.6
-    type: gauge
-    help: The number of process contexts currently loaded or running on this system.
-      - 1.3.6.1.2.1.25.1.6
-  - name: hrSystemMaxProcesses
-    oid: 1.3.6.1.2.1.25.1.7
-    type: gauge
-    help: The maximum number of process contexts this system can support - 1.3.6.1.2.1.25.1.7
   - name: hrMemorySize
     oid: 1.3.6.1.2.1.25.2.2
     type: gauge
@@ -1280,6 +1248,46 @@ synology:
     type: gauge
     help: The amount of real/physical memory currently being used by text pages on
       this host - 1.3.6.1.4.1.2021.4.17
+  - name: memTotalSwapX
+    oid: 1.3.6.1.4.1.2021.4.18
+    type: counter
+    help: The total amount of swap space configured for this host. - 1.3.6.1.4.1.2021.4.18
+  - name: memAvailSwapX
+    oid: 1.3.6.1.4.1.2021.4.19
+    type: counter
+    help: The amount of swap space currently unused or available. - 1.3.6.1.4.1.2021.4.19
+  - name: memTotalRealX
+    oid: 1.3.6.1.4.1.2021.4.20
+    type: counter
+    help: The total amount of real/physical memory installed on this host. - 1.3.6.1.4.1.2021.4.20
+  - name: memAvailRealX
+    oid: 1.3.6.1.4.1.2021.4.21
+    type: counter
+    help: The amount of real/physical memory currently unused or available. - 1.3.6.1.4.1.2021.4.21
+  - name: memTotalFreeX
+    oid: 1.3.6.1.4.1.2021.4.22
+    type: counter
+    help: The total amount of memory free or available for use on this host - 1.3.6.1.4.1.2021.4.22
+  - name: memMinimumSwapX
+    oid: 1.3.6.1.4.1.2021.4.23
+    type: counter
+    help: The minimum amount of swap space expected to be kept free or available during
+      normal operation of this host - 1.3.6.1.4.1.2021.4.23
+  - name: memSharedX
+    oid: 1.3.6.1.4.1.2021.4.24
+    type: counter
+    help: The total amount of real or virtual memory currently allocated for use as
+      shared memory - 1.3.6.1.4.1.2021.4.24
+  - name: memBufferX
+    oid: 1.3.6.1.4.1.2021.4.25
+    type: counter
+    help: The total amount of real or virtual memory currently allocated for use as
+      memory buffers - 1.3.6.1.4.1.2021.4.25
+  - name: memCachedX
+    oid: 1.3.6.1.4.1.2021.4.26
+    type: counter
+    help: The total amount of real or virtual memory currently allocated for use as
+      cached memory - 1.3.6.1.4.1.2021.4.26
   - name: memSwapError
     oid: 1.3.6.1.4.1.2021.4.100
     type: gauge
@@ -1324,11 +1332,11 @@ synology:
     help: The Model name of this NAS - 1.3.6.1.4.1.6574.1.5.1
   - name: serialNumber
     oid: 1.3.6.1.4.1.6574.1.5.2
-    type: DisplayString
+    type: OctetString
     help: The serial number of this NAS - 1.3.6.1.4.1.6574.1.5.2
   - name: version
     oid: 1.3.6.1.4.1.6574.1.5.3
-    type: DisplayString
+    type: OctetString
     help: The version of this DSM - 1.3.6.1.4.1.6574.1.5.3
   - name: upgradeAvailable
     oid: 1.3.6.1.4.1.6574.1.5.4
@@ -1729,231 +1737,6 @@ synology:
       type: DisplayString
     - labels: []
       labelname: spaceIOIndex
-  - name: flashCacheIndex
-    oid: 1.3.6.1.4.1.6574.103.1.1.1
-    type: gauge
-    help: Reference index for each observed device. - 1.3.6.1.4.1.6574.103.1.1.1
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
-  - name: flashCacheSSDDev
-    oid: 1.3.6.1.4.1.6574.103.1.1.2
-    type: DisplayString
-    help: The ssd device on flashcache we are counting/checking. - 1.3.6.1.4.1.6574.103.1.1.2
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
-  - name: flashCacheSpaceDev
-    oid: 1.3.6.1.4.1.6574.103.1.1.3
-    type: DisplayString
-    help: The space device on flashcache we are counting/checking. - 1.3.6.1.4.1.6574.103.1.1.3
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
-  - name: flashCacheReadHits
-    oid: 1.3.6.1.4.1.6574.103.1.1.4
-    type: counter
-    help: The number of reads on flash cache. - 1.3.6.1.4.1.6574.103.1.1.4
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
-  - name: flashCacheWriteHits
-    oid: 1.3.6.1.4.1.6574.103.1.1.5
-    type: counter
-    help: The number of writes on flash cache. - 1.3.6.1.4.1.6574.103.1.1.5
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
-  - name: flashCacheDiskRead
-    oid: 1.3.6.1.4.1.6574.103.1.1.6
-    type: counter
-    help: The number of reads on disk. - 1.3.6.1.4.1.6574.103.1.1.6
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
-  - name: flashCacheDiskWrite
-    oid: 1.3.6.1.4.1.6574.103.1.1.7
-    type: counter
-    help: The number of writes on disk. - 1.3.6.1.4.1.6574.103.1.1.7
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
-  - name: flashCacheTotalRead
-    oid: 1.3.6.1.4.1.6574.103.1.1.8
-    type: counter
-    help: The number of reads on volume with flash cache. - 1.3.6.1.4.1.6574.103.1.1.8
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
-  - name: flashCacheTotalWrite
-    oid: 1.3.6.1.4.1.6574.103.1.1.9
-    type: counter
-    help: The number of writes on volume with flash cache. - 1.3.6.1.4.1.6574.103.1.1.9
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
-  - name: flashCacheReadHitRate
-    oid: 1.3.6.1.4.1.6574.103.1.1.10
-    type: gauge
-    help: The read hit rate of flash cache (%) - 1.3.6.1.4.1.6574.103.1.1.10
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
-  - name: flashCacheWriteHitRate
-    oid: 1.3.6.1.4.1.6574.103.1.1.11
-    type: gauge
-    help: The write hit rate of flash cache (%) - 1.3.6.1.4.1.6574.103.1.1.11
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
-  - name: flashCacheReadSeqSkip
-    oid: 1.3.6.1.4.1.6574.103.1.1.12
-    type: counter
-    help: The number of skipped sequential reads on flash cache. - 1.3.6.1.4.1.6574.103.1.1.12
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
-  - name: flashCacheWriteSeqSkip
-    oid: 1.3.6.1.4.1.6574.103.1.1.13
-    type: counter
-    help: The number of skipped sequential writes on flash cache. - 1.3.6.1.4.1.6574.103.1.1.13
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
-  - name: flashCacheWriteMissSsd
-    oid: 1.3.6.1.4.1.6574.103.1.1.14
-    type: counter
-    help: The number of data writes to SSD for the first time. - 1.3.6.1.4.1.6574.103.1.1.14
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
-  - name: flashCacheSsdUuid
-    oid: 1.3.6.1.4.1.6574.103.1.1.15
-    type: DisplayString
-    help: The ssd UUID on flashcache we are counting/checking. - 1.3.6.1.4.1.6574.103.1.1.15
-    indexes:
-    - labelname: flashCacheIndex
-      type: gauge
-    lookups:
-    - labels:
-      - flashCacheIndex
-      labelname: flashCacheSSDDev
-      oid: 1.3.6.1.4.1.6574.103.1.1.2
-      type: DisplayString
-    - labels: []
-      labelname: flashCacheIndex
   - name: iSCSILUNInfoIndex
     oid: 1.3.6.1.4.1.6574.104.1.1.1
     type: gauge
@@ -2073,6 +1856,20 @@ synology:
     indexes:
     - labelname: iSCSILUNInfoIndex
       type: gauge
+  - name: iSCSILUNDiskLatencyAvg
+    oid: 1.3.6.1.4.1.6574.104.1.1.18
+    type: gauge
+    help: Average latency of LUN disk - 1.3.6.1.4.1.6574.104.1.1.18
+    indexes:
+    - labelname: iSCSILUNInfoIndex
+      type: gauge
+  - name: iSCSILUNThinProvisionVolFreeMBs
+    oid: 1.3.6.1.4.1.6574.104.1.1.19
+    type: gauge
+    help: Free space(MB) of thin provisioning lun's volume - 1.3.6.1.4.1.6574.104.1.1.19
+    indexes:
+    - labelname: iSCSILUNInfoIndex
+      type: gauge
   - name: diskIndex
     oid: 1.3.6.1.4.1.6574.2.1.1.1
     type: gauge
@@ -2085,12 +1882,12 @@ synology:
       - diskIndex
       labelname: diskID
       oid: 1.3.6.1.4.1.6574.2.1.1.2
-      type: DisplayString
+      type: OctetString
     - labels: []
       labelname: diskIndex
   - name: diskID
     oid: 1.3.6.1.4.1.6574.2.1.1.2
-    type: DisplayString
+    type: OctetString
     help: Synology disk ID The ID of disk is assigned by disk Station. - 1.3.6.1.4.1.6574.2.1.1.2
     indexes:
     - labelname: diskIndex
@@ -2100,7 +1897,7 @@ synology:
       - diskIndex
       labelname: diskID
       oid: 1.3.6.1.4.1.6574.2.1.1.2
-      type: DisplayString
+      type: OctetString
     - labels: []
       labelname: diskIndex
   - name: diskModel
@@ -2115,7 +1912,7 @@ synology:
       - diskIndex
       labelname: diskID
       oid: 1.3.6.1.4.1.6574.2.1.1.2
-      type: DisplayString
+      type: OctetString
     - labels: []
       labelname: diskIndex
   - name: diskType
@@ -2131,7 +1928,7 @@ synology:
       - diskIndex
       labelname: diskID
       oid: 1.3.6.1.4.1.6574.2.1.1.2
-      type: DisplayString
+      type: OctetString
     - labels: []
       labelname: diskIndex
   - name: diskStatus
@@ -2147,7 +1944,7 @@ synology:
       - diskIndex
       labelname: diskID
       oid: 1.3.6.1.4.1.6574.2.1.1.2
-      type: DisplayString
+      type: OctetString
     - labels: []
       labelname: diskIndex
   - name: diskTemperature
@@ -2163,7 +1960,115 @@ synology:
       - diskIndex
       labelname: diskID
       oid: 1.3.6.1.4.1.6574.2.1.1.2
-      type: DisplayString
+      type: OctetString
+    - labels: []
+      labelname: diskIndex
+  - name: diskRole
+    oid: 1.3.6.1.4.1.6574.2.1.1.7
+    type: OctetString
+    help: Synology disk role The role of the disk in system - 1.3.6.1.4.1.6574.2.1.1.7
+    indexes:
+    - labelname: diskIndex
+      type: gauge
+    lookups:
+    - labels:
+      - diskIndex
+      labelname: diskID
+      oid: 1.3.6.1.4.1.6574.2.1.1.2
+      type: OctetString
+    - labels: []
+      labelname: diskIndex
+  - name: diskRetry
+    oid: 1.3.6.1.4.1.6574.2.1.1.8
+    type: gauge
+    help: Synology disk retry count The count of each disk connection retries. - 1.3.6.1.4.1.6574.2.1.1.8
+    indexes:
+    - labelname: diskIndex
+      type: gauge
+    lookups:
+    - labels:
+      - diskIndex
+      labelname: diskID
+      oid: 1.3.6.1.4.1.6574.2.1.1.2
+      type: OctetString
+    - labels: []
+      labelname: diskIndex
+  - name: diskBadSector
+    oid: 1.3.6.1.4.1.6574.2.1.1.9
+    type: gauge
+    help: Synology disk bad sector count The count of each disk I/O bad sector. -
+      1.3.6.1.4.1.6574.2.1.1.9
+    indexes:
+    - labelname: diskIndex
+      type: gauge
+    lookups:
+    - labels:
+      - diskIndex
+      labelname: diskID
+      oid: 1.3.6.1.4.1.6574.2.1.1.2
+      type: OctetString
+    - labels: []
+      labelname: diskIndex
+  - name: diskIdentifyFail
+    oid: 1.3.6.1.4.1.6574.2.1.1.10
+    type: gauge
+    help: Synology disk identify fail count The count of each disk identify fails.
+      - 1.3.6.1.4.1.6574.2.1.1.10
+    indexes:
+    - labelname: diskIndex
+      type: gauge
+    lookups:
+    - labels:
+      - diskIndex
+      labelname: diskID
+      oid: 1.3.6.1.4.1.6574.2.1.1.2
+      type: OctetString
+    - labels: []
+      labelname: diskIndex
+  - name: diskRemainLife
+    oid: 1.3.6.1.4.1.6574.2.1.1.11
+    type: gauge
+    help: Synology disk remainLife The estimate remain life of each disk. - 1.3.6.1.4.1.6574.2.1.1.11
+    indexes:
+    - labelname: diskIndex
+      type: gauge
+    lookups:
+    - labels:
+      - diskIndex
+      labelname: diskID
+      oid: 1.3.6.1.4.1.6574.2.1.1.2
+      type: OctetString
+    - labels: []
+      labelname: diskIndex
+  - name: diskName
+    oid: 1.3.6.1.4.1.6574.2.1.1.12
+    type: OctetString
+    help: Synology disk name The name of disk which align to storage manager. - 1.3.6.1.4.1.6574.2.1.1.12
+    indexes:
+    - labelname: diskIndex
+      type: gauge
+    lookups:
+    - labels:
+      - diskIndex
+      labelname: diskID
+      oid: 1.3.6.1.4.1.6574.2.1.1.2
+      type: OctetString
+    - labels: []
+      labelname: diskIndex
+  - name: diskHealthStatus
+    oid: 1.3.6.1.4.1.6574.2.1.1.13
+    type: gauge
+    help: Synology disk health status Each meanings of status represented describe
+      below - 1.3.6.1.4.1.6574.2.1.1.13
+    indexes:
+    - labelname: diskIndex
+      type: gauge
+    lookups:
+    - labels:
+      - diskIndex
+      labelname: diskID
+      oid: 1.3.6.1.4.1.6574.2.1.1.2
+      type: OctetString
     - labels: []
       labelname: diskIndex
   - name: raidIndex
@@ -2179,6 +2084,8 @@ synology:
       labelname: raidName
       oid: 1.3.6.1.4.1.6574.3.1.1.2
       type: DisplayString
+    - labels: []
+      labelname: raidIndex
   - name: raidName
     oid: 1.3.6.1.4.1.6574.3.1.1.2
     type: DisplayString
@@ -2192,6 +2099,8 @@ synology:
       labelname: raidName
       oid: 1.3.6.1.4.1.6574.3.1.1.2
       type: DisplayString
+    - labels: []
+      labelname: raidIndex
   - name: raidStatus
     oid: 1.3.6.1.4.1.6574.3.1.1.3
     type: gauge
@@ -2206,6 +2115,8 @@ synology:
       labelname: raidName
       oid: 1.3.6.1.4.1.6574.3.1.1.2
       type: DisplayString
+    - labels: []
+      labelname: raidIndex
   - name: raidFreeSize
     oid: 1.3.6.1.4.1.6574.3.1.1.4
     type: gauge
@@ -2219,6 +2130,8 @@ synology:
       labelname: raidName
       oid: 1.3.6.1.4.1.6574.3.1.1.2
       type: DisplayString
+    - labels: []
+      labelname: raidIndex
   - name: raidTotalSize
     oid: 1.3.6.1.4.1.6574.3.1.1.5
     type: gauge
@@ -2232,6 +2145,23 @@ synology:
       labelname: raidName
       oid: 1.3.6.1.4.1.6574.3.1.1.2
       type: DisplayString
+    - labels: []
+      labelname: raidIndex
+  - name: raidHotspareCnt
+    oid: 1.3.6.1.4.1.6574.3.1.1.6
+    type: gauge
+    help: Synology raid hotspare Total hotspare disks count - 1.3.6.1.4.1.6574.3.1.1.6
+    indexes:
+    - labelname: raidIndex
+      type: gauge
+    lookups:
+    - labels:
+      - raidIndex
+      labelname: raidName
+      oid: 1.3.6.1.4.1.6574.3.1.1.2
+      type: DisplayString
+    - labels: []
+      labelname: raidIndex
   - name: upsDeviceModel
     oid: 1.3.6.1.4.1.6574.4.1.1
     type: DisplayString

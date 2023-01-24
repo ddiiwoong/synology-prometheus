@@ -10,6 +10,8 @@ Monitoring Synology NAS with snmp_exporter and prometheus
 - Enabled SSH
 - Administartor Access
 - Enabled SNMP
+- Enabled SNMPv1, SNMPv2 Service
+- Setup Communuity: synology
 
 ## Architecture
 
@@ -49,10 +51,12 @@ scrape_configs:
 ## Install
 
 ```
-docker-compose up
+docker-compose up -d
 ```
 
-## Configure
+## Synology MIBs
+
+[SNMP Exporter Config Generator](https://github.com/prometheus/snmp_exporter/tree/main/generator)
 
 ## Reference
 

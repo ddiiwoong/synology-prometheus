@@ -25,6 +25,7 @@ services:
       - 9093:9093
     volumes:
       - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - ./config/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
     restart: always
   
   node-exporter:
