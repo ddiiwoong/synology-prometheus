@@ -1,13 +1,13 @@
 # WARNING: This file was auto-generated using snmp_exporter generator, manual changes will be lost.
 auths:
   public_v1:
-    community: synology
+    community: public
     security_level: noAuthNoPriv
     auth_protocol: MD5
     priv_protocol: DES
     version: 1
   public_v2:
-    community: synology
+    community: public
     security_level: noAuthNoPriv
     auth_protocol: MD5
     priv_protocol: DES
