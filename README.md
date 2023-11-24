@@ -8,7 +8,7 @@ Monitoring Synology NAS with snmp_exporter and prometheus
 ## Dependency
 - [Synology Docker](https://www.synology.com/en-global/dsm/packages/Docker)
 - Enabled SSH
-- Administartor Access
+- Administrator Access
 - Enabled SNMP
 - Enabled SNMPv1, SNMPv2 Service
 - Setup Communuity: synology
