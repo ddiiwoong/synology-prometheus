@@ -12,6 +12,14 @@ auths:
     auth_protocol: MD5
     priv_protocol: DES
     version: 2
+  private_v3:
+    security_level: authPriv
+    auth_protocol: SHA
+    priv_protocol: AES
+    version: 3
+    #username: CHANGE-HERE
+    #password: CHANGE-HERE
+    #priv_password: CHANGE-HERE
 modules:
   apcups:
     walk:
